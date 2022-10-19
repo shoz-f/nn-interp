@@ -33,7 +33,7 @@ link_libraries(
 	)
 
 if(MSVC)
-	file(GLOB NNFW_DLLS "${LIBTORCH_ROOTDIR}/lib/*.dll")
+	file(GLOB NNFW_DLLS "${LIBTORCH_ROOTDIR}/*.dll")
 elseif(UNIX)
-	file(GLOB NNFW_DLLS "${LIBTORCH_ROOTDIR}/lib/*.so*")
+	file(GLOB NNFW_DLLS "${LIBTORCH_ROOTDIR}/*.so*")
 endif()
