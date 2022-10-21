@@ -52,8 +52,17 @@ defmodule NNInterp do
   """
 
   @timeout 300000
-  @framework System.get_env("NNFRAMEWORK")
+  @framework System.get_env("NNINTERP")
   
+  # the suffix expected for the model
+  suffix = %{
+    "tflite"      => ".tflite",
+    "onnxruntime" => ".onnx",
+    "libtorch"    => ".pt"
+  }
+  @suffix suffix[String.downcase(@framework)]
+
+
   defmacro __using__(opts) do
     quote generated: true, location: :keep do
       use GenServer
@@ -65,7 +74,7 @@ defmodule NNInterp do
       def init(opts) do
         executable = Application.app_dir(:nn_interp, "priv/nn_interp")
         opts = Keyword.merge(unquote(opts), opts)
-        nn_model   = Keyword.get(opts, :model)
+        nn_model   = Keyword.get(opts, :model) |> NNInterp.validate_model_path()
         nn_label   = Keyword.get(opts, :label, "none")
         nn_inputs  = Keyword.get(opts, :inputs, [])
         nn_outputs = Keyword.get(opts, :outputs, [])
@@ -115,14 +124,39 @@ defmodule NNInterp do
   defstruct module: nil, input: [], output: []
 
   @doc """
-  Query backend NN framework.
+  Get name of backend NN framework.
   """
   def framework() do
     @framework
   end
-  
+
+  @dec """
+  Ensure that the back-end framework is as expected.
+  """
   def framework?(name) do
-    unless name == @framework, do: raise "Error: backend NN framework is \"#{@framework}\", not \"#{name}\"."
+    unless String.downcase(name) == String.downcase(@framework),
+      do: raise "Error: backend NN framework is \"#{@framework}\", not \"#{name}\"."
+  end
+
+  @doc """
+  Ensure that the model matches the back-end framework.
+  """
+  def validate_model_path(nil), do: raise("error: need a model file \"#{@suffix}\".")
+  def validate_model_path(model) do
+    model = case Path.extname(model) do
+      "" -> 
+          model <> @suffix
+      @suffix ->
+          model
+      other ->
+          raise("error: #{@framework} expects the model file \"#{@suffix}\" not \"#{other}\".")
+    end
+
+    if File.exists?(model) do
+      model
+    else
+      raise("error: not found \"#{model}\".")
+    end
   end
 
   @doc """

@@ -25,6 +25,10 @@ endif()
 find_package(Torch REQUIRED
 	PATHS ${LIBTORCH_ROOTDIR}
 	)
+
+set(X_INTERP
+	src/torch/torch_interp.cpp
+	)
 include_directories(
 	${TORCH_INCLUDE_DIRS}
 	)

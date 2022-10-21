@@ -6,9 +6,16 @@ project(nn_interp)
 include(FetchContent)
 set(THIRD_PARTY ${CMAKE_SOURCE_DIR}/3rd_party)
 
-message("NNINTERP=$ENV{NNFRAMEWORK}")
+string(TOLOWER $ENV{NNINTERP} NNINTERP)
+message("NNINTERP=${NNINTERP}")
 
-include(TorchInterp.cmake)
+if(${NNINTERP} STREQUAL "libtorch")
+	include(TorchInterp.cmake)
+elseif(${NNINTERP} STREQUAL "onnxruntime")
+include(OnnxInterp.cmake)
+else()
+	message(FATAL_ERROR "Unkown NN framework: ${NNINTERP}")
+endif()
 
 # add Nlohmann JSON
 set(URL_NLOHMANN_JSON "https://github.com/nlohmann/json/releases/download/v3.7.3/include.zip")
@@ -16,7 +23,7 @@ set(NLOHMANN_JSON_ROOTDIR ${CMAKE_SOURCE_DIR}/3rd_party/nlohmann_json)
 
 if(NOT EXISTS ${NLOHMANN_JSON_ROOTDIR})
 message("** Download nlohmann_json.")
-FetchContent_Declare(nlohmann_json                                                
+FetchContent_Declare(nlohmann_json
 	URL ${URL_NLOHMANN_JSON}
 	SOURCE_DIR ${NLOHMANN_JSON_ROOTDIR}
 	)
@@ -30,7 +37,7 @@ set(GETOPT
 	src/getopt/getopt.c
 	src/getopt/getopt_long.c
 	)
-add_library(interp
+add_library(libinterp
 	STATIC
 	src/tiny_ml.cpp
 	src/tensor_spec.cpp
@@ -42,10 +49,10 @@ add_library(interp
 # main
 add_executable(nn_interp
 	src/main.cpp
-	src/torch/torch_interp.cpp
+	${X_INTERP}
 	)
 target_link_libraries(nn_interp
-	interp
+	libinterp
 	)
 
 # installation
