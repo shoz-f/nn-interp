@@ -12,7 +12,7 @@ message("NNINTERP=${NNINTERP}")
 if(${NNINTERP} STREQUAL "libtorch")
 	include(TorchInterp.cmake)
 elseif(${NNINTERP} STREQUAL "onnxruntime")
-include(OnnxInterp.cmake)
+	include(OnnxInterp.cmake)
 else()
 	message(FATAL_ERROR "Unkown NN framework: ${NNINTERP}")
 endif()
@@ -37,7 +37,7 @@ set(GETOPT
 	src/getopt/getopt.c
 	src/getopt/getopt_long.c
 	)
-add_library(libinterp
+add_library(interp
 	STATIC
 	src/tiny_ml.cpp
 	src/tensor_spec.cpp
@@ -52,7 +52,7 @@ add_executable(nn_interp
 	${X_INTERP}
 	)
 target_link_libraries(nn_interp
-	libinterp
+	interp
 	)
 
 # installation
@@ -68,12 +68,12 @@ install(TARGETS nn_interp
 if(NNFW_DLLS)
 	add_custom_command(TARGET nn_interp
 		POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different
-		${NNFW_DLLS}
-		$ENV{MIX_APP_PATH}/priv)
+		COMMAND ${CMAKE_COMMAND} -E make_directory $ENV{MIX_APP_PATH}/priv
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different ${NNFW_DLLS} $ENV{MIX_APP_PATH}/priv
+		)
 	add_custom_command(TARGET nn_interp
 		POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different
-		${NNFW_DLLS}
-		${CMAKE_SOURCE_DIR}/priv)
+		COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_SOURCE_DIR}/priv
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different ${NNFW_DLLS} ${CMAKE_SOURCE_DIR}/priv
+		)
 endif()

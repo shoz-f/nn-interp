@@ -1,6 +1,6 @@
 defmodule DemoR18 do
   use NNInterp,
-    model: "./r18_scripted.pht", inputs: [f4: {1, 3, 224, 224}], outputs: [f4: {1, 1000}]
+    model: "./r18_scripted.pt", inputs: [f4: {1, 3, 224, 224}], outputs: [f4: {1, 1000}]
 
   @r18_shape {224, 224}
 
@@ -39,5 +39,7 @@ defmodule DemoR18 do
   def run() do
     CImg.load("lion.jpg")
     |> __MODULE__.apply(3)
+    |> IO.inspect()
+    :ok
   end
 end
