@@ -1,5 +1,5 @@
 defmodule DemoVGG16 do
-  use NNInterp, model: "./vgg16-7"
+  use NNInterp, model: "./data/vgg16-7.onnx", url: "https://github.com/shoz-f/nn-interp/releases/download/0.0.1/vgg16-7.onnx"
 
   @vgg16_shape {224, 224}
   @imagenet1000 (for item <- File.stream!("./imagenet1000.label") do
@@ -30,10 +30,12 @@ defmodule DemoVGG16 do
   end
   
   def run() do
+    unless File.exists?("lion.jpg"),
+      do: NNInterp.URL.download("https://github.com/shoz-f/nn-interp/releases/download/0.0.1/lion.jpg")
+
     CImg.load("lion.jpg")
     |> __MODULE__.apply(3)
     |> IO.inspect()
-
     :ok
   end
 end

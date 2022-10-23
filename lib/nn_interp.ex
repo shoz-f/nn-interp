@@ -60,7 +60,7 @@ defmodule NNInterp do
     "onnxruntime" => ".onnx",
     "libtorch"    => ".pt"
   }
-  @suffix suffix[String.downcase(@framework)]
+  @model_suffix suffix[String.downcase(@framework)]
 
 
   defmacro __using__(opts) do
@@ -74,7 +74,7 @@ defmodule NNInterp do
       def init(opts) do
         executable = Application.app_dir(:nn_interp, "priv/nn_interp")
         opts = Keyword.merge(unquote(opts), opts)
-        nn_model   = Keyword.get(opts, :model) |> NNInterp.validate_model_path()
+        nn_model   = NNInterp.validate_model(Keyword.get(opts, :model), Keyword.get(opts, :url))
         nn_label   = Keyword.get(opts, :label, "none")
         nn_inputs  = Keyword.get(opts, :inputs, [])
         nn_outputs = Keyword.get(opts, :outputs, [])
@@ -141,22 +141,21 @@ defmodule NNInterp do
   @doc """
   Ensure that the model matches the back-end framework.
   """
-  def validate_model_path(nil), do: raise("error: need a model file \"#{@suffix}\".")
-  def validate_model_path(model) do
-    model = case Path.extname(model) do
-      "" -> 
-          model <> @suffix
-      @suffix ->
-          model
-      other ->
-          raise("error: #{@framework} expects the model file \"#{@suffix}\" not \"#{other}\".")
+  def validate_model(nil, _), do: raise("error: need a model file \"#{@model_suffix}\".")
+  def validate_model(model, url) do
+    validate_extname!(model)
+    unless File.exists?(model) do
+        validate_extname!(url)
+        NNInterp.URL.download(url, Path.dirname(model), Path.basename(model))
     end
+    model
+  end
 
-    if File.exists?(model) do
-      model
-    else
-      raise("error: not found \"#{model}\".")
-    end
+  defp validate_extname!(model) do
+    actual = Path.extname(model)
+    unless actual == @model_suffix,
+      do: raise "error: #{@framework} expects the model file \"#{@model_suffix}\" not \"#{actual}\"."
+    :ok
   end
 
   @doc """

@@ -1,8 +1,12 @@
 defmodule DemoR18 do
-  use NNInterp,
-    model: "./r18_scripted.pt", inputs: [f4: {1, 3, 224, 224}], outputs: [f4: {1, 1000}]
+  @width  224
+  @height 224
 
-  @r18_shape {224, 224}
+  use NNInterp,
+    model: "./data/r18_scripted.pt",
+    url: "https://github.com/shoz-f/nn-interp/releases/download/0.0.1/r18_scripted.pt",
+    inputs: [f4: {1, 3, @height, @width}],
+    outputs: [f4: {1, 1000}]
 
   @imagenet1000 (for item <- File.stream!("./imagenet1000.label") do
                    String.trim_trailing(item)
@@ -13,7 +17,7 @@ defmodule DemoR18 do
   def apply(img, top \\ 1) do
     # preprocess
     bin = CImg.builder(img)
-      |> CImg.resize(@r18_shape)
+      |> CImg.resize({@width, @height})
       |> CImg.to_binary([{:gauss, {{123.7, 58.4}, {116.3, 57.1}, {103.5, 57.4}}}, :nchw])
 
     # prediction
@@ -37,6 +41,9 @@ defmodule DemoR18 do
   end
   
   def run() do
+    unless File.exists?("lion.jpg"),
+      do: NNInterp.URL.download("https://github.com/shoz-f/nn-interp/releases/download/0.0.1/lion.jpg")
+
     CImg.load("lion.jpg")
     |> __MODULE__.apply(3)
     |> IO.inspect()

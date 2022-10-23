@@ -33,6 +33,7 @@ defmodule NNInterp.MixProject do
   defp deps do
     [
       {:poison, "~> 5.0"},
+      {:httpoison, "~> 1.8"},
       {:mix_cmake, "~> 0.1.3"},
       {:ex_doc, ">= 0.0.0", only: :dev, runtime: false}
     ]
