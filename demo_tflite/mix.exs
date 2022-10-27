@@ -21,7 +21,7 @@ defmodule DemoR18.MixProject do
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
-    System.put_env("NNINTERP", "LibTorch")
+    System.put_env("NNINTERP", "Tflite")
     [
       {:nx, "~> 0.2.1"},
       {:cimg, github: "shoz-f/cimg_ex"},

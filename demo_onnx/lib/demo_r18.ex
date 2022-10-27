@@ -3,8 +3,7 @@ defmodule DemoR18 do
   @height 224
 
   use NNInterp,
-    model: "./data/r18_scripted.pt",
-    url: "https://github.com/shoz-f/nn-interp/releases/download/0.0.1/r18_scripted.pt",
+    model: "./data/resnet18.onnx",
     inputs: [f4: {1, 3, @height, @width}],
     outputs: [f4: {1, 1000}]
 
