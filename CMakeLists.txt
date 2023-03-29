@@ -21,15 +21,15 @@ endif()
 
 # add Nlohmann JSON
 set(URL_NLOHMANN_JSON "https://github.com/nlohmann/json/releases/download/v3.7.3/include.zip")
-set(NLOHMANN_JSON_ROOTDIR ${CMAKE_SOURCE_DIR}/3rd_party/nlohmann_json)
+set(NLOHMANN_JSON_ROOTDIR ${THIRD_PARTY}/nlohmann_json)
 
 if(NOT EXISTS ${NLOHMANN_JSON_ROOTDIR})
-message("** Download nlohmann_json.")
-FetchContent_Declare(nlohmann_json
-	URL ${URL_NLOHMANN_JSON}
-	SOURCE_DIR ${NLOHMANN_JSON_ROOTDIR}
-	)
-FetchContent_MakeAvailable(nlohmann_json)
+        message("** Download nlohmann_json.")
+        FetchContent_Declare(nlohmann_json
+                URL ${URL_NLOHMANN_JSON}
+                SOURCE_DIR ${NLOHMANN_JSON_ROOTDIR}
+                )
+        FetchContent_MakeAvailable(nlohmann_json)
 endif()
 
 include_directories(${NLOHMANN_JSON_ROOTDIR}/include)

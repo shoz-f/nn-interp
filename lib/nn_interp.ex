@@ -130,7 +130,7 @@ defmodule NNInterp do
     @framework
   end
 
-  @dec """
+  @doc """
   Ensure that the back-end framework is as expected.
   """
   def framework?(name) do
