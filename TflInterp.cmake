@@ -20,6 +20,8 @@ elseif("$ENV{MIX_TARGET}" IN_LIST NERVES_AARCH64)
 	include(toolchain_aarch64.cmake)
 endif()
 
+install(CODE "set(CMAKE_INSTALL_LOCAL_ONLY ON)")
+
 # check requirements
 #find_package(Patch)
 #if(NOT Patch_FOUND)
