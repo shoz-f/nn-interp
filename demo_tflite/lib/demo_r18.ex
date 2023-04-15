@@ -4,6 +4,7 @@ defmodule DemoR18 do
 
   use NNInterp,
     model: "./data/resnet18.tflite",
+    url: "https://github.com/shoz-f/nn-interp/releases/download/0.0.1/resnet18.tflite",
     inputs: [f4: {1, 3, @height, @width}],
     outputs: [f4: {1, 1000}]
 
