@@ -27,12 +27,12 @@ struct TensorSpec {
 //TYPE:
     enum DType {
       DTYPE_NONE = 0,
-      DTYPE_F4,
-      DTYPE_U1,
-      DTYPE_I1,
-      DTYPE_U2,
-      DTYPE_I2,
-      DTYPE_I4,
+      DTYPE_F32,
+      DTYPE_U8,
+      DTYPE_I8,
+      DTYPE_U16,
+      DTYPE_I16,
+      DTYPE_I32,
     };
 
 //LIFECYCLE:

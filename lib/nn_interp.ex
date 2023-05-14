@@ -2,7 +2,9 @@ defmodule NNInterp do
   @moduledoc """
   Torch Script intepreter for Elixir.
   Deep Learning inference framework.
+  """
 
+  @basic_usage """
   ## Basic Usage
   You get the trained pytorch model and save it in a directory that your application can read.
   "your-app/priv" may be good choice.
@@ -52,7 +54,7 @@ defmodule NNInterp do
   """
 
   @timeout 300000
-  @framework System.get_env("NNINTERP")
+  @framework System.get_env("NNINTERP") || raise ArgumentError, "environment variable 'NNINTERP' must be set one of {tflite, onnxruntime, libtorch}."
   
   # the suffix expected for the model
   suffix = %{
@@ -60,8 +62,11 @@ defmodule NNInterp do
     "onnxruntime" => ".onnx",
     "libtorch"    => ".pt"
   }
+
   @model_suffix suffix[String.downcase(@framework)]
 
+  # session record
+  defstruct module: nil, inputs: [], outputs: []
 
   defmacro __using__(opts) do
     quote generated: true, location: :keep do
@@ -86,7 +91,33 @@ defmodule NNInterp do
           :binary
         ])
 
-        {:ok, %{port: port}}
+        {:ok, %{port: port, itempl: nn_inputs, otempl: nn_outputs}}
+      end
+
+      def session() do
+        %NNInterp{module: __MODULE__}
+      end
+
+      def handle_call(cmd_line, _from, state) when is_binary(cmd_line) do
+        Port.command(state.port, cmd_line)
+        response = receive do
+          {_, {:data, <<result::binary>>}} -> {:ok, result}
+        after
+          Keyword.get(unquote(opts), :timeout, 300000) -> {:timeout}
+        end
+        {:reply, response, state}
+      end
+
+      def handle_call({:itempl, index}, _from, %{itempl: template}=state) do
+        {:reply, {:ok, Enum.at(template, index)}, state}
+      end
+
+      def handle_call({:otempl, index}, _from, %{otempl: template}=state) do
+        {:reply, {:ok, Enum.at(template, index)}, state}
+      end
+
+      def terminate(_reason, state) do
+        Port.close(state.port)
       end
 
       defp opt_tspecs(_, []), do: []
@@ -100,28 +131,9 @@ defmodule NNInterp do
         shape = Tuple.to_list(shape) |> Enum.map(fn :none->1; x->x end) |> Enum.join(",")
         "#{dtype},#{shape}"
       end
-
-      def session() do
-        %NNInterp{module: __MODULE__}
-      end
-
-      def handle_call(cmd_line, _from, state) do
-        Port.command(state.port, cmd_line)
-        response = receive do
-          {_, {:data, <<result::binary>>}} -> {:ok, result}
-        after
-          Keyword.get(unquote(opts), :timeout, 300000) -> {:timeout}
-        end
-        {:reply, response, state}
-      end
-
-      def terminate(_reason, state) do
-        Port.close(state.port)
-      end
     end
   end
 
-  defstruct module: nil, input: [], output: []
 
   @doc """
   Get name of backend NN framework.
@@ -140,22 +152,29 @@ defmodule NNInterp do
 
   @doc """
   Ensure that the model matches the back-end framework.
+
+  ## Parameters
+    * model - path of model file
+    * url - download site
   """
-  def validate_model(nil, _), do: raise("error: need a model file \"#{@model_suffix}\".")
+  def validate_model(nil, _), do: raise ArgumentError, "need a model file \"#{@model_suffix}\"."
   def validate_model(model, url) do
     validate_extname!(model)
-    unless File.exists?(model) do
-        validate_extname!(url)
-        NNInterp.URL.download(url, Path.dirname(model), Path.basename(model))
+
+	abs_path = Path.expand(model)
+    unless File.exists?(abs_path) do
+    	IO.puts("#{model}:")
+        {:ok, _} = NNInterp.URL.download(url, Path.dirname(abs_path), Path.basename(abs_path))
     end
     model
   end
 
   defp validate_extname!(model) do
-    actual = Path.extname(model)
-    unless actual == @model_suffix,
-      do: raise "error: #{@framework} expects the model file \"#{@model_suffix}\" not \"#{actual}\"."
-    :ok
+    actual_ext = Path.extname(model)
+    unless actual_ext == @model_suffix,
+      do: raise ArgumentError, "#{@framework} expects the model file \"#{@model_suffix}\" not \"#{actual_ext}\"."
+
+    actual_ext
   end
 
   @doc """
@@ -205,8 +224,8 @@ defmodule NNInterp do
     mod
   end
 
-  def set_input_tensor(%NNInterp{input: input}=session, index, bin, opts) do
-    %NNInterp{session | input: [input_tensor(index, bin, opts) | input]}
+  def set_input_tensor(%NNInterp{inputs: inputs}=session, index, bin, opts) do
+    %NNInterp{session | inputs: [input_tensor(index, bin, opts) | inputs]}
   end
 
   defp input_tensor(index, bin, opts) do
@@ -223,11 +242,73 @@ defmodule NNInterp do
   end
 
   @doc """
-  Invoke prediction.
+  Put flat binaries to the input tensors on the interpreter.
 
   ## Parameters
 
-    * mod - modules' names
+    * mod   - modules' names or session.
+    * from  - first index of input tensor in the model
+    * items - list of input data - flat binary, cf. serialized tensor
+  """
+  def set_input_tensors(mod, from, items) when is_list(items) do
+    Enum.with_index(items, from)
+    |> Enum.reduce(mod, fn {item, i}, mod -> set_input_tensor(mod, i, item) end)
+  end
+  
+  @doc """
+  Get the flat binary from the output tensor on the interpreter.
+
+  ## Parameters
+
+    * mod   - modules' names or session.
+    * index - index of output tensor in the model
+  """
+  def get_output_tensor(mod, index, opts \\ [])
+
+  def get_output_tensor(mod, index, _opts) when is_atom(mod) do
+    cmd = 3
+    case GenServer.call(mod, <<cmd::little-integer-32, index::little-integer-32>>, @timeout) do
+      {:ok, result} -> result
+      any -> any
+    end
+  end
+
+  def get_output_tensor(%NNInterp{outputs: outputs}, index, _opts) do
+    Enum.at(outputs, index)
+  end
+
+  @doc """
+  Get list of the flat binary from the output tensoron the interpreter.
+
+  ## Parameters
+
+    * mod   - modules' names or session.
+    * range - range of output tensor in the model
+  """
+  def get_output_tensors(mod, range) do
+    for i <- range, do: get_output_tensor(mod, i)
+  end
+
+  @doc """
+  Invoke prediction.
+
+  Two modes are toggled depending on the type of input data.
+  One is the stateful mode, in which input/output data are stored as model states.
+  The other mode is stateless, where input/output data is stored in a session
+  structure assigned to the application.
+
+  ## Parameters
+
+    * mod/session - modules name(stateful) or session structure(stateless).
+
+  ## Examples.
+
+    ```elixir
+      output_bin = session()  # stateless mode
+        |> NNInterp.set_input_tensor(0, input_bin)
+        |> NNInterp.invoke()
+        |> NNInterp.get_output_tensor(0)
+    ```
   """
   def invoke(mod) when is_atom(mod) do
     cmd = 2
@@ -238,58 +319,24 @@ defmodule NNInterp do
     mod
   end
 
-  @doc """
-  Get the flat binary from the output tensor on the interpreter.
-
-  ## Parameters
-
-    * mod   - modules' names or session.
-    * index - index of output tensor in the model
-  """
-  def get_output_tensor(mod, index) when is_atom(mod) do
-    cmd = 3
-    case GenServer.call(mod, <<cmd::little-integer-32, index::little-integer-32>>, @timeout) do
-      {:ok, result} -> result
-      any -> any
-    end
-  end
-
-  def get_output_tensor(%NNInterp{output: output}, index) do
-    Enum.at(output, index)
-  end
-
-  @doc """
-  Execute the inference session. In session mode, data input/execution of
-  inference/output of results to the DL model is done all at once.
-
-  ## Parameters
-
-    * session - session.
-
-  ## Examples.
-
-    ```elixir
-      output_bin =
-        session()
-        |> NNInterp.set_input_tensor(0, input_bin)
-        |> NNInterp.run()
-        |> NNInterp.get_output_tensor(0)
-    ```
-  """
-  def run(%NNInterp{module: mod, input: input}=session) do
+  def invoke(%NNInterp{module: mod, inputs: inputs}=session) do
     cmd   = 4
-    count = Enum.count(input)
-    data  = Enum.reduce(input, <<>>, fn x,acc -> acc <> x end)
+    count = Enum.count(inputs)
+    data  = Enum.reduce(inputs, <<>>, fn x,acc -> acc <> x end)
     case GenServer.call(mod, <<cmd::little-integer-32, count::little-integer-32>> <> data, @timeout) do
       {:ok, <<count::little-integer-32, results::binary>>} ->
           if count > 0 do
-              %NNInterp{session | output: for <<size::little-integer-32, tensor::binary-size(size) <- results>> do tensor end}
+              outputs = for <<size::little-integer-32, tensor::binary-size(size) <- results>> do tensor end
+              %NNInterp{session | outputs: outputs}
           else
               "error: %{count}"
           end
       any -> any
     end
   end
+
+  @deprecated "Use invoke/1 instead"
+  def run(x), do: invoke(x)
 
   @doc """
   Execute post processing: nms.
@@ -306,9 +353,9 @@ defmodule NNInterp do
       * score_threshold: - score cutoff threshold
       * sigma:           - soft IOU parameter
       * boxrepr:         - type of box representation
-         * 0 - center pos and width/height
-         * 1 - top-left pos and width/height
-         * 2 - top-left and bottom-right corner pos
+         * :center  - center pos and width/height
+         * :topleft - top-left pos and width/height
+         * :corner  - top-left and bottom-right corner pos
   """
 
   def non_max_suppression_multi_class(mod, {num_boxes, num_class}, boxes, scores, opts \\ []) do
@@ -329,4 +376,32 @@ defmodule NNInterp do
       any -> any
     end
   end
+
+
+  @doc """
+  Adjust NMS result to aspect of the input image. (letterbox)
+
+  ## Parameters:
+
+    * nms_result - NMS result {:ok, result}
+    * [rx, ry] - aspect ratio of the input image
+  """
+  def adjust2letterbox(nms_result, aspect \\ [1.0, 1.0])
+
+  def adjust2letterbox({:ok, result}, [rx, ry]) do
+    {
+      :ok,
+      Enum.reduce(Map.keys(result), result, fn key,map ->
+        Map.update!(map, key, &Enum.map(&1, fn [score, x1, y1, x2, y2, index] ->
+          x1 = if x1 < 0.0, do: 0.0, else: x1
+          y1 = if y1 < 0.0, do: 0.0, else: y1
+          x2 = if x2 > 1.0, do: 1.0, else: x2
+          y2 = if y2 > 1.0, do: 1.0, else: y2
+          [score, x1/rx, y1/ry, x2/rx, y2/ry, index]
+        end))
+      end)
+    }
+  end
+
+  def adjust2letterbox(nms_result, _), do: nms_result
 end

@@ -29,16 +29,16 @@ TensorSpec::TensorSpec(std::string spec, bool alloc_blob)
     auto offset = std::string::size_type(0);
     auto pos    = spec.find(',', offset);
     std::string chunk = spec.substr(offset, pos-offset);
-    if (chunk == "u1") {
-        mDType = DTYPE_U1;
+    if (chunk == "u8") {
+        mDType = DTYPE_U8;
         element_size = 1;
     }
-    else if (chunk == "i4") {
-        mDType = DTYPE_I4;
+    else if (chunk == "i32") {
+        mDType = DTYPE_I32;
         element_size = 4;
     }
-    else if (chunk == "f4") {
-        mDType = DTYPE_F4;
+    else if (chunk == "f32") {
+        mDType = DTYPE_F32;
         element_size = 4;
     }
     else {

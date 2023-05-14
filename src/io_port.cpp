@@ -42,10 +42,10 @@ rcv_packet_port(std::string& cmd_line)
         // receive packet size
         Magic len;
         /*+KNOWLEDGE:shoz:20/11/24:can't work "cin.get(len.C[3]).get(len.C[2]).." in WSL */
-        len.C[3] = std::cin.get();
-        len.C[2] = std::cin.get();
-        len.C[1] = std::cin.get();
-        len.C[0] = std::cin.get();
+        len.C[3] = (char)std::cin.get();
+        len.C[2] = (char)std::cin.get();
+        len.C[1] = (char)std::cin.get();
+        len.C[0] = (char)std::cin.get();
 
         // receive packet payload
         std::unique_ptr<char[]> buff(new char[len.ui32]);

@@ -36,7 +36,7 @@ SysInfo gSys;
 void usage()
 {
     std::cout
-      << "onnx_interp [opts] <model.onnx> <class.label>\n"
+      << "nn_interp [opts] <model> <class.label>\n"
       << "\toption:\n"
       << "\t  -i <spec> : input tensor spec - \"f4,1,3,224,224\"\n"
       << "\t  -o <spec> : output tensor spec - \"f4,1,1000\"\n"
@@ -58,7 +58,7 @@ void usage()
 int
 main(int argc, char* argv[])
 {
-	int opt, longindex;
+	int opt;
 	const struct option longopts[] = {
 	    {"inputs",   required_argument, NULL, 'i'},
 	    {"outputs",  required_argument, NULL, 'o'},
@@ -101,7 +101,7 @@ main(int argc, char* argv[])
 	}
 	if ((argc - optind) < 2) {
 		// argument error
-		std::cerr << "error: expect <model.onnx>\n\n";
+		std::cerr << "error: expect <model>\n\n";
 		usage();
 		return 1;
 	}

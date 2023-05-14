@@ -25,7 +25,7 @@ defmodule NNInterp.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger]
+      extra_applications: [:logger, :ssl, :inets]
     ]
   end
 
@@ -33,7 +33,8 @@ defmodule NNInterp.MixProject do
   defp deps do
     [
       {:poison, "~> 5.0"},
-      {:httpoison, "~> 1.8"},
+      {:castore, "~> 0.1.19"},
+      {:progress_bar, "~> 2.0"},
       {:mix_cmake, "~> 0.1.3"},
       {:ex_doc, ">= 0.0.0", only: :dev, runtime: false}
     ]

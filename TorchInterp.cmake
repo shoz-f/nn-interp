@@ -2,10 +2,10 @@ set(LIBTORCH_ROOTDIR ${THIRD_PARTY}/libtorch)
 
 
 if(MSVC)
-	set(URL_LIBTORCH "https://download.pytorch.org/libtorch/cpu/libtorch-win-shared-with-deps-debug-1.12.1%2Bcpu.zip")
+	set(URL_LIBTORCH "https://download.pytorch.org/libtorch/cpu/libtorch-win-shared-with-deps-2.0.1%2Bcpu.zip")
 	string(APPEND CMAKE_CXX_FLAGS " /wd4624 /wd4819 /wd4067 /wd4251 /wd4244")
 elseif(UNIX)
-	set(URL_LIBTORCH "https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.12.1%2Bcpu.zip")
+	set(URL_LIBTORCH "https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-2.0.1%2Bcpu.zip")
 	set(CMAKE_INSTALL_RPATH "\$ORIGIN")
 else()
 	message(FATAL_ERROR "unknown target")

@@ -18,6 +18,8 @@
 
 #define TFLITE_EXPERIMENTAL 1
 
+void add_custom_operations(tflite::ops::builtin::BuiltinOpResolver& resolver);
+
 /***  Module Header  ******************************************************}}}*/
 /**
 * initialize interpreter
