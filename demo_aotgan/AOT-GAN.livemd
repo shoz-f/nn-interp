@@ -47,7 +47,7 @@ The torchscript model `AOT-GAN_CELLEBA-HQ.pt` is converted from their pretraind 
 
 * Post-processing
 
-  Convert the result tensor which has float32 {0.0, 1.0} values to 24bit color image.
+  Convert the result tensor which has float32 {-1.0, 1.0} values to 24bit color image.
 
 ```elixir
 defmodule AotGan do
