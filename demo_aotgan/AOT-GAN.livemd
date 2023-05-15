@@ -7,7 +7,7 @@ System.shell("chcp 65001")
 
 Mix.install(
   [
-    {:nn_interp, path: ".."},
+    {:nn_interp, github: "shoz-f/nn-interp"},
     {:cimg, "~> 0.1.20"},
     {:kino, "~> 0.7.0"}
   ],
@@ -102,7 +102,7 @@ Load a photo and apply AotGan to it.
 
 ```elixir
 origin = CImg.load("origin.jpg")
-input = CImg.load("masked_im.jpg")
+input = CImg.load("masked_img.jpg")
 mask = CImg.load("mask.jpg")
 
 result = AotGan.apply(input, mask)
