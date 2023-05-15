@@ -33,7 +33,7 @@ The torchscript model `AOT-GAN_CELLEBA-HQ.pt` is converted from their pretraind 
 
 ## Implementation with NNInterp in Elixir
 
-## 1.Defining the inference module: DeepFillV2
+## 1.Defining the inference module: AotGan
 
 * Model
 
