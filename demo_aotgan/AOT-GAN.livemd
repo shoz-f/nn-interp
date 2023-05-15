@@ -42,6 +42,7 @@ The torchscript model `AOT-GAN_CELLEBA-HQ.pt` is converted from their pretraind 
 * Pre-processing
 
   Resize the masked-image to {512, 512} and normalize it to a range of {-1.0, 1.0}.
+  
   Resize the mask to {512, 512} and normalize it to a range of {0.0, 1.0}.
 
 * Post-processing
