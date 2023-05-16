@@ -1,0 +1,115 @@
+# Generative Inpainting - AOT-GAN
+
+```elixir
+File.cd!(__DIR__)
+# for windows JP
+System.shell("chcp 65001")
+
+Mix.install(
+  [
+    {:nn_interp, github: "shoz-f/nn-interp"},
+    {:cimg, "~> 0.1.20"},
+    {:kino, "~> 0.7.0"}
+  ],
+  system_env: [{"NNINTERP", "LibTorch"}]
+)
+```
+
+## 0.Original work
+
+"Aggregated Contextual Transformations for High-Resolution Image Inpainting"
+
+* https://arxiv.org/abs/2104.01431
+
+GitHub: AOT-GAN for High-Resolution Image Inpainting
+
+* https://github.com/researchmm/AOT-GAN-for-Inpainting
+
+The torchscript model `AOT-GAN_CELLEBA-HQ.pt` is converted from their pretraind model.
+
+***Thanks a lot!!!***
+
+---
+
+## Implementation with NNInterp in Elixir
+
+## 1.Defining the inference module: AotGan
+
+* Model
+
+  AOT-GAN_CELLEBA-HQ.tflite: get from "https://github.com/shoz-f/nn-interp/releases/download/0.0.1/AOT-GAN_CELLEBA-HQ.pt" if not existed.
+
+* Pre-processing
+
+  Resize the masked-image to {512, 512} and normalize it to a range of {-1.0, 1.0}.
+  
+  Resize the mask to {512, 512} and normalize it to a range of {0.0, 1.0}.
+
+* Post-processing
+
+  Convert the result tensor which has float32 {-1.0, 1.0} values to 24bit color image.
+
+```elixir
+defmodule AotGan do
+  @width 512
+  @height 512
+
+  use NNInterp,
+    model: "./model/AOT-GAN_CELLEBA-HQ.pt",
+    url: "https://github.com/shoz-f/nn-interp/releases/download/0.0.1/AOT-GAN_CELLEBA-HQ.pt",
+    inputs: [f32: {1, 3, @height, @width}, f32: {1, 1, @height, @width}],
+    outputs: [f32: {1, 3, @height, @width}]
+
+  def apply(img, mask) do
+    # preprocess
+    input0 =
+      CImg.builder(img)
+      |> CImg.resize({@width, @height})
+      |> CImg.to_binary([{:range, {-1.0, 1.0}}, :nchw, :bgr])
+
+    input1 =
+      CImg.builder(mask)
+      |> CImg.resize({@width, @height})
+      |> CImg.to_binary([{:range, {0.0, 1.0}}, :nchw])
+
+    # prediction
+    session()
+    |> NNInterp.set_input_tensor(0, input0)
+    |> NNInterp.set_input_tensor(1, input1)
+    |> NNInterp.invoke()
+    |> NNInterp.get_output_tensor(0)
+    |> CImg.from_binary(@width, @height, 1, 3, [{:range, {-1.0, 1.0}}, :nchw, :bgr])
+    |> CImg.resize(img)
+  end
+end
+```
+
+Launch `AotGan`.
+
+```elixir
+# NNlInterp.stop(DeepFillV2)
+AotGan.start_link([])
+```
+
+Display the properties of the `AotGan` model.
+
+```elixir
+NNInterp.info(AotGan)
+```
+
+## 2.Let's try it
+
+Load a photo and apply AotGan to it.
+
+```elixir
+origin = CImg.load("origin.jpg")
+input = CImg.load("masked_img.jpg")
+mask = CImg.load("mask.jpg")
+
+result = AotGan.apply(input, mask)
+
+Enum.map([input, mask, origin, result], &CImg.display_kino(&1, :jpeg))
+|> Kino.Layout.grid(columns: 2)
+```
+
+&#9633;
