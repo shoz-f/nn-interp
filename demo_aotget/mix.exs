@@ -24,7 +24,6 @@ defmodule DemoDeepFillV2.MixProject do
     System.put_env("NNINTERP", "LibTorch")
     [
       {:nn_interp, path: ".."},
-      {:nx, "~> 0.4.0"},
       {:cimg, "~> 0.1.20"}
     ]
   end

@@ -25,3 +25,5 @@ erl_crash.dump
 *~
 toolchains/
 3rd_party/
+priv/
+*.lock
