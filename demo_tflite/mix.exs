@@ -21,11 +21,11 @@ defmodule DemoR18.MixProject do
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
-    System.put_env("NNINTERP", "Tflite")
+    System.put_env("NNINTERP", "tflite-cpu")
     [
-      {:nx, "~> 0.2.1"},
-      {:cimg, github: "shoz-f/cimg_ex"},
-      {:nn_interp, path: ".."}
+      {:nn_interp, path: ".."},
+      {:cimg, "~> 0.1.20"},
+      {:nx, "~> 0.2.1"}
     ]
   end
 end

@@ -35,7 +35,7 @@ defmodule NNInterp.MixProject do
       {:poison, "~> 5.0"},
       {:castore, "~> 0.1.19"},
       {:progress_bar, "~> 2.0"},
-      {:mix_cmake, "~> 0.1.3"},
+      {:mix_cmake, path: "../mix_cmake"},
       {:ex_doc, ">= 0.0.0", only: :dev, runtime: false}
     ]
   end
