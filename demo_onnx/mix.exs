@@ -21,10 +21,10 @@ defmodule DemoR18.MixProject do
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
-    System.put_env("NNINTERP", "OnnxRuntime")
+    System.put_env("NNINTERP", "onnx-cpu")
     [
       {:nx, "~> 0.2.1"},
-      {:cimg, github: "shoz-f/cimg_ex"},
+      {:cimg, "~> 0.1.20"},
       {:nn_interp, path: ".."}
     ]
   end

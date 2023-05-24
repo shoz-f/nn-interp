@@ -1,21 +1,26 @@
 set(ONNXRUNTIME_ROOTDIR ${THIRD_PARTY}/onnxruntime)
 
-
-if(MSVC)
-        set(URL_ONNXRUNTIME https://github.com/microsoft/onnxruntime/releases/download/v1.12.0/onnxruntime-win-x64-1.12.0.zip)
-        string(APPEND CMAKE_CXX_FLAGS " /W4")
-        set(ONNXRUNTIME_LIBRARIES
-    	        ${ONNXRUNTIME_ROOTDIR}/lib/onnxruntime.lib
-    	        ${ONNXRUNTIME_ROOTDIR}/lib/onnxruntime_providers_shared.lib
-    	        )
-elseif(UNIX AND NOT APPLE)
-        set(URL_ONNXRUNTIME https://github.com/microsoft/onnxruntime/releases/download/v1.12.0/onnxruntime-linux-x64-1.12.0.tgz)
-        string(APPEND CMAKE_CXX_FLAGS " -Wall -Wextra")
-        string(APPEND CMAKE_C_FLAGS " -Wall -Wextra")
-	set(ONNXRUNTIME_LIBRARIES
-                ${ONNXRUNTIME_ROOTDIR}/lib/libonnxruntime.so
-                )
-	set(CMAKE_INSTALL_RPATH "\$ORIGIN")
+if(${NN_TARGET} STREQUAL "windows-x86_64")
+	if(${NN_CONFIG} STREQUAL "gpu")
+	else()
+		set(URL_ONNXRUNTIME https://github.com/microsoft/onnxruntime/releases/download/v1.12.0/onnxruntime-win-x64-1.12.0.zip)
+		string(APPEND CMAKE_CXX_FLAGS " /W4")
+		set(ONNXRUNTIME_LIBRARIES
+			${ONNXRUNTIME_ROOTDIR}/lib/onnxruntime.lib
+			${ONNXRUNTIME_ROOTDIR}/lib/onnxruntime_providers_shared.lib
+			)
+    	endif()
+elseif(${NN_TARGET} STREQUAL "linux-x86_64")
+	if(${NN_CONFIG} STREQUAL "gpu")
+	else()
+		set(URL_ONNXRUNTIME https://github.com/microsoft/onnxruntime/releases/download/v1.12.0/onnxruntime-linux-x64-1.12.0.tgz)
+		string(APPEND CMAKE_CXX_FLAGS " -Wall -Wextra")
+		string(APPEND CMAKE_C_FLAGS " -Wall -Wextra")
+		set(ONNXRUNTIME_LIBRARIES
+			${ONNXRUNTIME_ROOTDIR}/lib/libonnxruntime.so
+			)
+		set(CMAKE_INSTALL_RPATH "\$ORIGIN")
+	endif()
 else()
 	message(FATAL_ERROR "unknown target")
 endif()

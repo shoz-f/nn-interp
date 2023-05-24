@@ -54,16 +54,17 @@ defmodule NNInterp do
   """
 
   @timeout 300000
-  @framework System.get_env("NNINTERP") || raise ArgumentError, "environment variable 'NNINTERP' must be set one of {tflite, onnxruntime, libtorch}."
+  @nninterp  System.get_env("NNINTERP") || raise ArgumentError, "environment variable 'NNINTERP' must be set one of {tflite, onnxruntime, libtorch}."
+  @framework String.downcase(@nninterp) |> String.split("-") |> Enum.at(0)
   
   # the suffix expected for the model
   suffix = %{
-    "tflite"      => ".tflite",
-    "onnxruntime" => ".onnx",
-    "libtorch"    => ".pt"
+    "tflite"   => ".tflite",
+    "onnx"     => ".onnx",
+    "libtorch" => ".pt"
   }
 
-  @model_suffix suffix[String.downcase(@framework)]
+  @model_suffix suffix[@framework]
 
   # session record
   defstruct module: nil, inputs: [], outputs: []

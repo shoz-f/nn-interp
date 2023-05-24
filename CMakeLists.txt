@@ -6,14 +6,37 @@ project(nn_interp)
 include(FetchContent)
 set(THIRD_PARTY ${CMAKE_SOURCE_DIR}/3rd_party)
 
+# get configuration of nn-framework
+message("NNINTERP=$ENV{NNINTERP}")
 string(TOLOWER $ENV{NNINTERP} NNINTERP)
-message("NNINTERP=${NNINTERP}")
+string(REPLACE "-" ";" CONF_NNINTERP ${NNINTERP})
 
-if(${NNINTERP} STREQUAL "libtorch")
+# set NN_FRAMEWORK
+list(GET CONF_NNINTERP 0 NN_FRAMEWORK)
+# set NN_CONFIG
+list(GET CONF_NNINTERP 1 NN_CONFIG)
+# set NN_TARGET
+list(LENGTH CONF_NNINTERP LEN_NNINTERP)
+if(${LEN_NNINTERP} GREATER 2)
+	list(SUBLIST CONF_NNINTERP 2 -1 NN_TARGET)
+	list(JOIN NN_TARGET "-" NN_TARGET)
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+	message("TARGET: Windows")
+	set(NN_TARGET "windows-x86_64")
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+	message("TARGET: Linux")
+	set(NN_TARGET "linux-x86_64")
+#elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+else()
+	message(FATAL_ERROR "unknown target")
+endif()
+
+
+if(${NN_FRAMEWORK} STREQUAL "libtorch")
 	include(TorchInterp.cmake)
-elseif(${NNINTERP} STREQUAL "onnxruntime")
+elseif(${NN_FRAMEWORK} STREQUAL "onnx")
 	include(OnnxInterp.cmake)
-elseif(${NNINTERP} STREQUAL "tflite")
+elseif(${NN_FRAMEWORK} STREQUAL "tflite")
 	include(TflInterp.cmake)
 else()
 	message(FATAL_ERROR "Unkown NN framework: ${NNINTERP}")
