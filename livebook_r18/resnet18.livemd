@@ -71,7 +71,7 @@ defmodule ResNet18 do
   @height 224
 
   use NNInterp,
-    model: "./model/r18_scripted.pt",
+    model: "./model/resnet18.pt",
     url: "https://github.com/shoz-f/nn-interp/releases/download/0.1.0/resnet18.pt",
     inputs: [f4: {1, 3, @height, @width}],
     outputs: [f4: {1, 1000}]
