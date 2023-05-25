@@ -21,7 +21,7 @@ defmodule DemoDeepFillV2.MixProject do
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
-    System.put_env("NNINTERP", "libtorch-cpu")
+    System.put_env("NNINTERP", "libtorch")
     [
       {:nn_interp, path: ".."},
       {:cimg, "~> 0.1.20"}
