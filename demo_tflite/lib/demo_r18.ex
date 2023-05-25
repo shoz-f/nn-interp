@@ -3,7 +3,8 @@ defmodule DemoR18 do
   @height 224
 
   use NNInterp,
-    model: "./data/resnet18.tflite",
+    model: "./model/resnet18.tflite",
+    url: "https://github.com/shoz-f/nn-interp/releases/download/0.1.0/resnet18.tflite",
     inputs: [f32: {1, 3, @height, @width}],
     outputs: [f32: {1, 1000}]
 
@@ -41,7 +42,7 @@ defmodule DemoR18 do
   
   def run() do
     unless File.exists?("lion.jpg"),
-      do: NNInterp.URL.download("https://github.com/shoz-f/nn-interp/releases/download/0.0.1/lion.jpg")
+      do: NNInterp.URL.download("https://github.com/shoz-f/nn-interp/releases/download/0.1.0/lion.jpg")
 
     CImg.load("lion.jpg")
     |> __MODULE__.apply(3)

@@ -37,12 +37,12 @@ The torchscript model `AOT-GAN_CELLEBA-HQ.pt` is converted from their pretraind 
 
 * Model
 
-  AOT-GAN_CELLEBA-HQ.tflite: get from "https://github.com/shoz-f/nn-interp/releases/download/0.0.1/AOT-GAN_CELLEBA-HQ.pt" if not existed.
+  AOT-GAN_CELLEBA-HQ.tflite: get from "https://github.com/shoz-f/nn-interp/releases/download/0.1.0/AOT-GAN_CELLEBA-HQ.pt" if not existed.
 
 * Pre-processing
 
   Resize the masked-image to {512, 512} and normalize it to a range of {-1.0, 1.0}.
-  
+
   Resize the mask to {512, 512} and normalize it to a range of {0.0, 1.0}.
 
 * Post-processing
@@ -56,7 +56,7 @@ defmodule AotGan do
 
   use NNInterp,
     model: "./model/AOT-GAN_CELLEBA-HQ.pt",
-    url: "https://github.com/shoz-f/nn-interp/releases/download/0.0.1/AOT-GAN_CELLEBA-HQ.pt",
+    url: "https://github.com/shoz-f/nn-interp/releases/download/0.1.0/AOT-GAN_CELLEBA-HQ.pt",
     inputs: [f32: {1, 3, @height, @width}, f32: {1, 1, @height, @width}],
     outputs: [f32: {1, 3, @height, @width}]
 

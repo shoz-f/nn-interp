@@ -1,4 +1,4 @@
-# ResNet18 image classification
+# ResNet18 image classification - libtorch
 
 ```elixir
 File.cd!(__DIR__)
@@ -7,12 +7,12 @@ System.shell("chcp 65001")
 
 Mix.install(
   [
+    {:nn_interp, github: "shoz-f/nn-interp"},
+    {:cimg, "~> 0.1.20"},
     {:nx, "~> 0.2.1"},
-    {:kino, "~> 0.6.2"},
-    {:nn_interp, path: ".."},
-    {:cimg, github: "shoz-f/cimg_ex"}
+    {:kino, "~> 0.6.2"}
   ],
-  system_env: [{"NNINTERP", "LibTorch"}]
+  system_env: [{"NNINTERP", "libtorch"}]
 )
 ```
 
@@ -22,11 +22,11 @@ torchvision.models.resnet18 -  pre-trained model included in Pytorch.
 
 * https://pytorch.org/vision/main/models/generated/torchvision.models.resnet18.html
 
-convert the model to TorchScript with torch.jit.script().
-
 ***Thanks a lot!!!***
 
 ---
+
+convert the model to TorchScript with torch.jit.script().
 
 <!-- livebook:{"break_markdown":true} -->
 
@@ -57,7 +57,7 @@ r18_scripted.save('r18_scripted.pt')
 ## 1.Defining the inference module: ResNet18
 
 * Model<br>
-  r18_scripted.pt: get from "https://github.com/shoz-f/nn-interp/releases/download/0.0.1/r18_scripted.pt" if not existed.
+  r18_scripted.pt: get from "https://github.com/shoz-f/nn-interp/releases/download/0.1.0/r18_scripted.pt" if not existed.
 
 * Pre-processing<br>
   Resize the input image to the size `{@width, @height}` and gaussian normalize.
@@ -71,8 +71,8 @@ defmodule ResNet18 do
   @height 224
 
   use NNInterp,
-    model: "./data/r18_scripted.pt",
-    url: "https://github.com/shoz-f/nn-interp/releases/download/0.0.1/r18_scripted.pt",
+    model: "./model/r18_scripted.pt",
+    url: "https://github.com/shoz-f/nn-interp/releases/download/0.1.0/resnet18.pt",
     inputs: [f4: {1, 3, @height, @width}],
     outputs: [f4: {1, 1000}]
 
@@ -93,7 +93,7 @@ defmodule ResNet18 do
     outputs =
       session()
       |> NNInterp.set_input_tensor(0, bin)
-      |> NNInterp.run()
+      |> NNInterp.invoke()
       |> NNInterp.get_output_tensor(0)
       |> Nx.from_binary({:f, 32})
       |> Nx.reshape({1000})
@@ -130,7 +130,7 @@ Load a photo and apply ResNet18 to it.
 ```elixir
 unless File.exists?("lion.jpg"),
   do:
-    NNInterp.URL.download("https://github.com/shoz-f/nn-interp/releases/download/0.0.1/lion.jpg")
+    NNInterp.URL.download("https://github.com/shoz-f/nn-interp/releases/download/0.1.0/lion.jpg")
 
 img = CImg.load("lion.jpg")
 Kino.render(CImg.display_kino(img, :jpeg))

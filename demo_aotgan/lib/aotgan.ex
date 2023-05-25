@@ -4,7 +4,7 @@ defmodule AotGan do
 
   use NNInterp,
     model: "./model/AOT-GAN_CELLEBA-HQ.pt",
-    url: "https://github.com/shoz-f/nn-interp/releases/download/0.0.1/AOT-GAN_CELLEBA-HQ.pt",
+    url: "https://github.com/shoz-f/nn-interp/releases/download/0.1.0/AOT-GAN_CELLEBA-HQ.pt",
     inputs: [f32: {1,3,@height,@width}, f32: {1,1,@height,@width}],
     outputs: [f32: {1,3,@height,@width}]
 
