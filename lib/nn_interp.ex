@@ -1,26 +1,28 @@
 defmodule NNInterp do
   @moduledoc """
-  Torch Script intepreter for Elixir.
+  Integrated DNN interpreter for Elixir.
   Deep Learning inference framework.
   """
 
   @basic_usage """
   ## Basic Usage
-  You get the trained pytorch model and save it in a directory that your application can read.
-  "your-app/priv" may be good choice.
+  First, obtain the trained PyTorch model and save it in a directory accessible
+  by your application. The "your-app/priv" directory could be a suitable choice.
 
   ```
   $ cp your-trained-model.pt ./priv
   ```
 
-  Next, you will create a module that interfaces with the deep learning model.
-  The module will need pre-processing and post-processing in addition to inference
-  processing, as in the example following. NNInterp provides inference processing
-  only.
+  Next, create a module that interfaces with the deep learning model. This
+  module will require pre-processing and post-processing functionality, in
+  addition to the inference processing provided by NNInterp, as demonstrated in
+  the following example.
 
-  You put `use NNInterp` at the beginning of your module, specify the model path as an optional argument. In the inference
-  section, you will put data input to the model (`NNInterp.set_input_tensor/3`), inference execution (`NNInterp.invoke/1`),
-  and inference result retrieval (`NNInterp.get_output_tensor/2`).
+  At the beginning of your module, include the statement `use NNInterp` and
+  specify the model path as an optional argument. In the inference section, you
+  will need to set the data input for the model using 
+  `NNInterp.set_input_tensor/3`, execute the inference with `NNInterp.invoke/1`, 
+  and retrieve the inference results via `NNInterp.get_output_tensor/2`.
 
   ```elixr:your_model.ex
   defmodule YourApp.YourModel do

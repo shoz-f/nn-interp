@@ -4,7 +4,7 @@ defmodule NNInterp.MixProject do
   def project do
     [
       app: :nn_interp,
-      version: "0.0.1",
+      version: "0.1.0",
       elixir: "~> 1.12",
       start_permanent: Mix.env() == :prod,
       compilers: [:cmake] ++ Mix.compilers(),
@@ -35,7 +35,7 @@ defmodule NNInterp.MixProject do
       {:poison, "~> 5.0"},
       {:castore, "~> 0.1.19"},
       {:progress_bar, "~> 2.0"},
-      {:mix_cmake, path: "../mix_cmake"},
+      {:mix_cmake, "~> 0.1.3"},
       {:ex_doc, ">= 0.0.0", only: :dev, runtime: false}
     ]
   end
@@ -75,7 +75,7 @@ defmodule NNInterp.MixProject do
   end
 
   defp description() do
-    "Torch script runtime intepreter for Elixir."
+    "Integrated DNN interpreter for Elixir"
   end
 
   defp package() do
@@ -93,7 +93,13 @@ defmodule NNInterp.MixProject do
       extras: [
         "README.md",
 #        "LICENSE",
-        "CHANGELOG.md"
+        "CHANGELOG.md",
+      
+        #Examples
+        "livebook_r18/resnet18.livemd"
+      ],
+      groups_for_extras: [
+        "Examples": Path.wildcard("*/*.livemd")
       ],
 #      source_ref: "v#{@version}",
 #      source_url: @source_url,
