@@ -8,7 +8,6 @@ I have confirmed it works in the following OS environment.
 
 - Windows 10 with Visual C++ 2019
 - WSL2/Ubuntu 20.04
-- Linux Mint 20 "Ulyana"
 
 ## Requirements
 cmake 3.13 or later is required.
@@ -92,7 +91,8 @@ end
 ```
 
 ## Demo
-A demo of ResNet18 running on "tflite", "onnx-runtime", or "libtorch" is available on the GitHub for this project. Please refer there.
+A demo of ResNet18 running on "tflite", "onnx-runtime", or "libtorch" is available on the GitHub for this project. 
+Please refer: https://github.com/shoz-f/nn-interp
 
 Let's enjoy ;-)
 

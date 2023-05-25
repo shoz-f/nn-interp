@@ -83,7 +83,7 @@ defmodule NNInterp.MixProject do
        name: "nn_interp",
       licenses: ["Apache-2.0"],
       links: %{"GitHub" => "https://github.com/shoz-f/nn_interp.git"},
-      files: ~w(lib mix.exs README* CHANGELOG* LICENSE* CMakeLists.txt src)
+      files: ~w(lib mix.exs README* CHANGELOG* LICENSE* CMakeLists.txt *.cmake *.patch src)
     ]
   end
 
@@ -96,10 +96,10 @@ defmodule NNInterp.MixProject do
         "CHANGELOG.md",
       
         #Examples
-        "livebook_r18/resnet18.livemd"
+        "demo_torch/resnet18.livemd"
       ],
       groups_for_extras: [
-        "Examples": Path.wildcard("*/*.livemd")
+        "Examples": ["demo_torch/resnet18.livemd"]
       ],
 #      source_ref: "v#{@version}",
 #      source_url: @source_url,
