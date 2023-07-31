@@ -4,7 +4,7 @@ defmodule NNInterp.MixProject do
   def project do
     [
       app: :nn_interp,
-      version: "0.1.0",
+      version: "0.1.1",
       elixir: "~> 1.12",
       start_permanent: Mix.env() == :prod,
       compilers: [:cmake] ++ Mix.compilers(),

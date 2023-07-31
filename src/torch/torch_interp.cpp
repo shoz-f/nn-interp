@@ -10,8 +10,7 @@
 **/
 /**************************************************************************{{{*/
 
-#include <torch/torch.h>
-#include <torch/nn/functional/activation.h>
+#include <torch/script.h>
 #include "../tensor_spec.h"
 #include "torch_interp.h"
 
@@ -185,7 +184,16 @@ TorchInterp::invoke()
     std::vector<torch::jit::IValue> inputs;
 
     for (const auto blob : mInputSpec) {
-        inputs.push_back(torch::from_blob(blob->mBlob, c10::IntArrayRef(blob->mShape)));
+        auto options = torch::TensorOptions().dtype(
+            (blob->mDType == TensorSpec::DTYPE_F32) ? torch::kFloat32 :
+            (blob->mDType == TensorSpec::DTYPE_U8)  ? torch::kUInt8   :
+            (blob->mDType == TensorSpec::DTYPE_I8)  ? torch::kInt8    :
+            (blob->mDType == TensorSpec::DTYPE_I16) ? torch::kInt16   :
+            (blob->mDType == TensorSpec::DTYPE_I32) ? torch::kInt32   :
+            torch::kFloat32
+        );
+
+        inputs.push_back(torch::from_blob(blob->mBlob, c10::IntArrayRef(blob->mShape), options));
     }
 
     mOutput = mModule.forward(inputs);

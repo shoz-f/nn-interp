@@ -37,6 +37,10 @@ TensorSpec::TensorSpec(std::string spec, bool alloc_blob)
         mDType = DTYPE_I32;
         element_size = 4;
     }
+    else if (chunk == "u32") {
+        mDType = DTYPE_U32;
+        element_size = 4;
+    }
     else if (chunk == "f32") {
         mDType = DTYPE_F32;
         element_size = 4;

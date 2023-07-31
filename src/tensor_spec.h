@@ -33,6 +33,7 @@ struct TensorSpec {
       DTYPE_U16,
       DTYPE_I16,
       DTYPE_I32,
+      DTYPE_U32 = 12,
     };
 
 //LIFECYCLE:
