@@ -23,9 +23,9 @@ defmodule DemoCLIP.MixProject do
   defp deps do
     System.put_env("NNINTERP", "libtorch")
     [
-      {:nn_interp, path: ".."},
+      {:nn_interp, "~> 0.1.1"},
       {:nx, "~> 0.2.1"},
-      {:npy, "~> 0.1.2"},
+#      {:npy, "~> 0.1.2"},
       {:cimg, "~> 0.1.21"}
     ]
   end
