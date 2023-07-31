@@ -35,7 +35,7 @@ defmodule NNInterp.MixProject do
       {:poison, "~> 5.0"},
       {:castore, "~> 0.1.19"},
       {:progress_bar, "~> 2.0"},
-      {:mix_cmake, "~> 0.1.3"},
+      {:mix_cmake, "~> 0.1.4"},
       {:ex_doc, ">= 0.0.0", only: :dev, runtime: false}
     ]
   end
@@ -83,7 +83,7 @@ defmodule NNInterp.MixProject do
        name: "nn_interp",
       licenses: ["Apache-2.0"],
       links: %{"GitHub" => "https://github.com/shoz-f/nn_interp.git"},
-      files: ~w(lib mix.exs README* CHANGELOG* LICENSE* CMakeLists.txt *.cmake *.patch src)
+      files: ~w(lib mix.exs README.md CHANGELOG.md LICENSE CMakeLists.txt *.cmake *.patch src)
     ]
   end
 

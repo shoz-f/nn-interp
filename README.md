@@ -17,7 +17,7 @@ Visual C++ 2019 for Windows.
 ## Installation
 Add the following line to the list of dependencies in `mix.exs`.
 
-```elixir
+```
 def deps do
   [
     {:nn_interp, "~> 0.1.0"}
